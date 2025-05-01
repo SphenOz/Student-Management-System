@@ -1,9 +1,11 @@
-import { use, useState } from "react"
+import  {useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 
 export default function Login() {
     const [ID, setID] = useState("")
     const [Password, setPassword] = useState("")
     const [failedID, setFailedID] = useState(false)
+    const navigate = useNavigate()
     const [failedPassword, setFailedPassword] = useState(false)
 
     const handleSubmit = (e) => {
@@ -14,6 +16,7 @@ export default function Login() {
             return
         }
         
+        navigate("/home")
         console.log("ID: ", ID)
     }
 
@@ -23,9 +26,9 @@ export default function Login() {
             <div className="flex flex-col items-center justify-center h-screen w-screen">
                 <div className ='border-amber-200 border-2 items-start rounded-lg flex flex-col min-h-[50vh] max-h-[50%] m-5 px-5 min-w-[400px] space-y-4'>    
                     <h1 className="m-5">Login</h1>
-                        <form  className= "flex flex-col w-full mt-5 space-y-8" onSubmit={handleSubmit}>
+                        <form  className= "flex flex-col w-full mt-5 space-y-7" onSubmit={handleSubmit}>
                             <input className={inputStyle}
-                                type="text" placeholder="ID" onChange={(e) => setID(e.target.value)} />
+                                type="text" placeholder="ID" onFocus={(e) => setFailedID(false)} onChange={(e) => setID(e.target.value)} />
                             {failedID && <span className="text-red-500">Invalid ID</span>}
                             <input className={inputStyle}
                                 type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
