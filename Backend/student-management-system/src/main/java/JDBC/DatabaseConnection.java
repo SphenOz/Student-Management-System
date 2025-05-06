@@ -13,6 +13,9 @@ public class DatabaseConnection {
         String user = "root";
         String password = "password";
 
+        // Path to SQL scripts folder
+        String basePath = "SQLScripts/";
+
         try (Connection conn = DriverManager.getConnection(url, user, password);
              Statement stmt = conn.createStatement()) {
 
@@ -23,7 +26,7 @@ public class DatabaseConnection {
             stmt.execute("USE student_db");
 
             // Run create_schema.sql
-            String createSQL = Files.readString(Paths.get("create_schema.sql"));
+            String createSQL = Files.readString(Paths.get(basePath + "create_schema.sql"));
             for (String sql : createSQL.split(";")) {
                 if (!sql.strip().isEmpty()) {
                     stmt.execute(sql);
@@ -32,7 +35,7 @@ public class DatabaseConnection {
             System.out.println("Schema created.");
 
             // Run initialize_data.sql
-            String initSQL = Files.readString(Paths.get("initialize_data.sql"));
+            String initSQL = Files.readString(Paths.get(basePath + "initialize_data.sql"));
             for (String sql : initSQL.split(";")) {
                 if (!sql.strip().isEmpty()) {
                     stmt.execute(sql);
