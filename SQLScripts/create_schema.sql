@@ -1,8 +1,8 @@
 -- Drop tables if they exist
-DROP TABLE IF EXISTS Students;
-DROP TABLE IF EXISTS Courses;
-DROP TABLE IF EXISTS Enrollments;
 DROP TABLE IF EXISTS Grades;
+DROP TABLE IF EXISTS Enrollments;
+DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Students;
 
 -- Students Table
 CREATE TABLE Students (
