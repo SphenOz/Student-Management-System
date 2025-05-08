@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS Grades;
 DROP TABLE IF EXISTS Enrollments;
 DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Professors;
 DROP TABLE IF EXISTS Students;
 
 -- Students Table
@@ -14,13 +15,22 @@ CREATE TABLE Students (
     major VARCHAR(100) NOT NULL
 );
 
+-- Professors Table
+CREATE TABLE Professors (
+    professor_id INT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE
+);
+
 -- Courses Table
 CREATE TABLE Courses (
     course_id INT PRIMARY KEY,
     course_name VARCHAR(100) NOT NULL,
     course_code VARCHAR(10) NOT NULL UNIQUE,
-    instructor VARCHAR(100) NOT NULL,
-    credits INT NOT NULL CHECK (credits > 0)
+    professor_id INT NOT NULL,
+    credits INT NOT NULL CHECK (credits > 0),
+    FOREIGN KEY (professor_id) REFERENCES Professors(professor_id)
 );
 
 -- Enrollments Table

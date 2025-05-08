@@ -17,59 +17,78 @@ INSERT INTO Students VALUES
 (14, 'Jeff', 'Chan', 'jeff.chan@sjsu.edu', '2002-04-18', 'Management Information Systems'),
 (15, 'Cecilia', 'Dougherty', 'cecilia.dougherty@sjsu.edu', '2000-08-29', 'Physics');
 
+-- Professors
+-- (professor_id, first_name, last_name, email)
+INSERT INTO Professors (professor_id, first_name, last_name, email) VALUES
+(101, 'William', 'Smith', 'william.smith@sjsu.edu'),
+(102, 'Tammy', 'Chan', 'tammy.chan@sjsu.edu'),
+(103, 'Andy', 'Meyers', 'andy.meyers@sjsu.edu'),
+(104, 'Tahereh', 'Arabghalizi', 'tahereh.arabghalizi@sjsu.edu'),
+(105, 'Scott', 'Walker', 'scott.walker@sjsu.edu'),
+(106, 'Ryan', 'Nguyen', 'ryan.nguyen@sjsu.edu'),
+(107, 'George', 'Hill', 'george.hill@sjsu.edu'),
+(108, 'Nick', 'Miller', 'nick.miller@sjsu.edu'),
+(109, 'Chris', 'Webber', 'chris.webber@sjsu.edu'),
+(110, 'Clay', 'Matthews', 'clay.matthews@sjsu.edu'),
+(111, 'Tiffany', 'Tran', 'tiffany.tran@sjsu.edu'),
+(112, 'Karen', 'Harvey', 'karen.harvey@sjsu.edu'),
+(113, 'John', 'Johnson', 'john.johnson@sjsu.edu'),
+(114, 'Chris', 'Brown', 'chris.brown@sjsu.edu'),
+(115, 'Tony', 'Parker', 'tony.parker@sjsu.edu');
+
 -- Courses
 -- (course_id, course_name, course_code, instructor, credits)
 INSERT INTO Courses VALUES
-(101, 'Aerodynamics I', 'AE 160', 'Smith', 3),
-(102, 'Calculus I', 'MATH 30', 'Chan', 3),
-(103, 'Calculus II', 'MATH 31', 'Meyers', 4),
-(104, 'Introduction to Database Management Systems', 'CS 157A', 'Arabghalizi', 3),
-(105, 'Public Speaking', 'COMM 20', 'Walker', 3),
-(106, 'Neuroscience', 'BIOL 129', 'Nguyen', 3),
-(107, 'Digital Design I', 'CMPE 124', 'Hill', 3),
-(108, 'Sales Management', 'BUS2 135', 'Miller', 3),
-(109, 'Public Finance', 'ECON 132', 'Webber', 3),
-(110, 'Financial Accounting', 'BUS1 20', 'Matthews', 3),
-(111, 'Medical Engineering Design Methods', 'BME 135', 'Tran', 3),
-(112, 'Law and Society', 'POLS 120', 'Harvey', 3),
-(113, 'Lasers', 'PHYS 168', 'Johnson', 3),
-(114, 'Health Economics', 'ECON 170', 'Brown', 3),
-(115, 'Biochemistry', 'CHEM130A', 'Parker', 4);
+(201, 'Aerodynamics I', 'AE 160', 101, 3),
+(202, 'Calculus I', 'MATH 30', 103, 3),
+(203, 'Calculus II', 'MATH 31', 107, 4),
+(204, 'Introduction to Database Management Systems', 'CS 157A', 104, 3),
+(205, 'Public Speaking', 'COMM 20', 110, 3),
+(206, 'Neuroscience', 'BIOL 129', 108, 3),
+(207, 'Digital Design I', 'CMPE 124', 105, 3),
+(208, 'Sales Management', 'BUS2 135', 112, 3),
+(209, 'Public Finance', 'ECON 132', 115, 3),
+(210, 'Financial Accounting', 'BUS1 20', 106, 3),
+(211, 'Medical Engineering Design Methods', 'BME 135', 109, 3),
+(212, 'Law and Society', 'POLS 120', 102, 3),
+(213, 'Lasers', 'PHYS 168', 111, 3),
+(214, 'Health Economics', 'ECON 170', 113, 3),
+(215, 'Biochemistry', 'CHEM130A', 114, 4);
 
 -- Enrollments
 -- (enrollment_id, student_id, course_id, semester, year)
 INSERT INTO Enrollments VALUES
-(201, 1, 104, 'Spring', 2025),
-(202, 2, 114, 'Spring', 2024),
-(203, 3, 103, 'Fall', 2025),
-(204, 4, 103, 'Spring', 2025),
-(205, 5, 102, 'Fall', 2023),
-(206, 6, 107, 'Fall', 2022),
-(207, 7, 101, 'Summer', 2022),
-(208, 8, 105, 'Fall', 2021),
-(209, 9, 112, 'Spring', 2024),
-(210, 10, 106, 'Summer', 2024),
-(211, 11, 111, 'Summer', 2023),
-(212, 12, 108, 'Spring', 2023),
-(213, 13, 110, 'Fall', 2024),
-(214, 14, 108, 'Spring', 2025),
-(215, 15, 113, 'Fall', 2021);
+(301, 1, 204, 'Spring', 2025),
+(302, 2, 214, 'Spring', 2024),
+(303, 3, 203, 'Fall', 2025),
+(304, 4, 203, 'Spring', 2025),
+(305, 5, 202, 'Fall', 2023),
+(306, 6, 207, 'Fall', 2022),
+(307, 7, 201, 'Summer', 2022),
+(308, 8, 205, 'Fall', 2021),
+(309, 9, 212, 'Spring', 2024),
+(310, 10, 206, 'Summer', 2024),
+(311, 11, 211, 'Summer', 2023),
+(312, 12, 208, 'Spring', 2023),
+(313, 13, 210, 'Fall', 2024),
+(314, 14, 208, 'Spring', 2025),
+(315, 15, 213, 'Fall', 2021);
 
 -- Grades
 -- (grade_id, enrollment_id, grade)
 INSERT INTO Grades VALUES
-(301, 201, 'A'),
-(302, 202, 'F'),
-(303, 203, 'C'),
-(304, 204, 'D'),
-(305, 205, 'A'),
-(306, 206, 'A'),
-(307, 207, 'B'),
-(308, 208, 'C'),
-(309, 209, 'B'),
-(310, 210, 'B'),
-(311, 211, 'A'),
-(312, 212, 'C'),
-(313, 213, 'F'),
-(314, 214, 'A'),
-(315, 215, 'B');
+(401, 301, 'A'),
+(402, 302, 'F'),
+(403, 303, 'C'),
+(404, 304, 'D'),
+(405, 305, 'A'),
+(406, 306, 'A'),
+(407, 307, 'B'),
+(408, 308, 'C'),
+(409, 309, 'B'),
+(410, 310, 'B'),
+(411, 311, 'A'),
+(412, 312, 'C'),
+(413, 313, 'F'),
+(414, 314, 'A'),
+(415, 315, 'B');

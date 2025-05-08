@@ -16,11 +16,38 @@ public class DatabaseConnection {
     private static final String PASSWORD = "password";
 
     public static void main(String[] args) {
-        initializeDatabase();
-        createStudent("Alice", "Johnson", "alice.johnson@sjsu.edu", "2002-05-06", "Computer Science");
+        initializeDatabase();  // Reset DB with latest schema/data
+
+        // 1. Create a new student
+        createStudent("Test", "Student", "test.student@sjsu.edu", "2001-01-01", "Test Major");
+
+        // 2. Read all students
+        System.out.println("\n--- All Students ---");
         readStudents();
-        updateStudentEmail(1, "alice.new@sjsu.edu");
-        deleteStudent(1);
+
+        // 3. Update student email (student_id 1)
+        updateStudentEmail(1, "peter.houston.updated@sjsu.edu");
+
+        // 4. Enroll student_id 2 into course_id 201 (assumes course 201 exists)
+        enrollInCourse(2, 201, "Fall", 2025);
+
+        // 5. Drop student_id 2 from course_id 201
+        dropFromCourse(2, 201);  // Should succeed
+
+        // 6. Professor 101 drops student_id 3 from course 201 (only if enrolled and prof teaches it)
+        dropStudentFromCourse(101, 3, 201);
+
+        // 7. Try dropping student not enrolled
+        dropFromCourse(2, 999);  // Should say not enrolled
+
+        // 8. Professor 102 (wrong prof) tries to drop student 2 from course 201
+        dropStudentFromCourse(102, 2, 201);  // Should say permission denied
+
+        // 9. Delete student 4 (ensure cascading delete of enrollments/grades)
+        deleteStudent(4);
+
+        // 10. Final state
+        System.out.println("\n--- Final Students ---");
         readStudents();
     }
 
@@ -136,4 +163,128 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
+
+    public static void createCourse(int courseId, String name, String code, String instructor, int credits) {
+        String sql = "INSERT INTO Courses (course_id, course_name, course_code, instructor, credits) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, courseId);
+            pstmt.setString(2, name);
+            pstmt.setString(3, code);
+            pstmt.setString(4, instructor);
+            pstmt.setInt(5, credits);
+            pstmt.executeUpdate();
+            System.out.println("Course created successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void enrollInCourse(int studentId, int courseId, String semester, int year) {
+        String sql = "INSERT INTO Enrollments (enrollment_id, student_id, course_id, semester, year) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            int nextId = getNextEnrollmentId(conn, "Enrollments", "enrollment_id");
+            pstmt.setInt(1, nextId);
+            pstmt.setInt(2, studentId);
+            pstmt.setInt(3, courseId);
+            pstmt.setString(4, semester);
+            pstmt.setInt(5, year);
+            pstmt.executeUpdate();
+            System.out.println("Student enrolled in course.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static int getNextEnrollmentId(Connection conn, String table, String column) throws SQLException {
+        String sql = "SELECT MAX(" + column + ") FROM " + table;
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1) + 1;
+        }
+        return 1;
+    }
+
+    public static void dropFromCourse(int studentId, int courseId) {
+        String checkEnrollment = "SELECT COUNT(*) FROM Enrollments WHERE student_id = ? AND course_id = ?";
+        String deleteGrades = "DELETE FROM Grades WHERE enrollment_id IN (SELECT enrollment_id FROM Enrollments WHERE student_id = ? AND course_id = ?)";
+        String deleteEnrollment = "DELETE FROM Enrollments WHERE student_id = ? AND course_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Check if the student is enrolled
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkEnrollment)) {
+                checkStmt.setInt(1, studentId);
+                checkStmt.setInt(2, courseId);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next() && rs.getInt(1) == 0) {
+                    System.out.println("Student is not enrolled in the specified course.");
+                    return;
+                }
+            }
+    
+            conn.setAutoCommit(false);
+    
+            try (PreparedStatement ps1 = conn.prepareStatement(deleteGrades);
+                 PreparedStatement ps2 = conn.prepareStatement(deleteEnrollment)) {
+    
+                ps1.setInt(1, studentId);
+                ps1.setInt(2, courseId);
+                ps1.executeUpdate();
+    
+                ps2.setInt(1, studentId);
+                ps2.setInt(2, courseId);
+                ps2.executeUpdate();
+    
+                conn.commit();
+                System.out.println("Student dropped from course.");
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void dropStudentFromCourse( int professorId, int studentId, int courseId) {
+        String verifySql = "SELECT COUNT(*) FROM Courses WHERE course_id = ? AND professor_id = ?";
+        String deleteGrades = "DELETE FROM Grades WHERE enrollment_id IN (SELECT enrollment_id FROM Enrollments WHERE student_id = ? AND course_id = ?)";
+        String deleteEnrollment = "DELETE FROM Enrollments WHERE student_id = ? AND course_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Verifies that the professor teaches the course
+            try (PreparedStatement checkStmt = conn.prepareStatement(verifySql)) {
+                checkStmt.setInt(1, courseId);
+                checkStmt.setInt(2, professorId);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next() && rs.getInt(1) == 0) {
+                    System.out.println("Permission denied: Professor does not teach course.");
+                    return;
+                }
+            }
+
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement ps1 = conn.prepareStatement(deleteGrades);
+                PreparedStatement ps2 = conn.prepareStatement(deleteEnrollment)) {
+                    
+                    ps1.setInt(1, studentId);
+                    ps1.setInt(2, courseId);
+                    ps1.executeUpdate();
+
+                    ps2.setInt(1, studentId);
+                    ps2.setInt(2, courseId);
+                    ps2.executeUpdate();
+
+                    conn.commit();
+                    System.out.println("Student dropped from course by Professor.");
+                } catch (SQLException e) {
+                    conn.rollback();
+                    throw e;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
 }
