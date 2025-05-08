@@ -9,6 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.srm.student_management_system.Course;
+import com.srm.student_management_system.Student;
 
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/student_db";
@@ -49,6 +54,14 @@ public class DatabaseConnection {
         // 10. Final state
         System.out.println("\n--- Final Students ---");
         readStudents();
+        // View all grades for student with id 2
+        viewGrades(2);
+
+        //View classes taught by professor with id 102
+        viewClassesByProf(102);
+
+        //View classes enrolled in for student with id 2
+        viewEnrolled(2);
     }
 
     public static void initializeDatabase() {
@@ -104,12 +117,21 @@ public class DatabaseConnection {
         return 1;
     }
 
-    public static void readStudents() {
+    public static List<Student> readStudents() {
+        List<Student> students = new ArrayList<>();
         String sql = "SELECT * FROM Students";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
+                Student s = new Student();
+                    s.setId(rs.getInt("student_id"));
+                    s.setFirstName(rs.getString("first_name")); 
+                    s.setLastName(rs.getString("last_name"));
+                    s.setEmail(rs.getString("email")); 
+                    s.setDate(rs.getDate("date_of_birth")); 
+                    s.setMajor(rs.getString("major"));
+                students.add(s);
                 System.out.printf("ID: %d, Name: %s %s, Email: %s, DOB: %s, Major: %s%n",
                     rs.getInt("student_id"), rs.getString("first_name"), rs.getString("last_name"),
                     rs.getString("email"), rs.getDate("date_of_birth"), rs.getString("major"));
@@ -117,6 +139,7 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return students;
     }
 
     public static void updateStudentEmail(int id, String newEmail) {
@@ -131,7 +154,6 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
-
     public static void updateGrade(int professorId, int studentId, int courseId, String newGrade) {
         String verifyProfessorSql = "SELECT COUNT(*) FROM Courses WHERE course_id = ? AND professor_id = ?";
         String verifyEnrollmentSql = "SELECT enrollment_id FROM Enrollments WHERE student_id = ? AND course_id = ?";
@@ -336,4 +358,103 @@ public class DatabaseConnection {
                 e.printStackTrace();
             }
         }
+    public static void viewGrades(int id){
+        String sql = "SELECT course_name, grade " + 
+                        "FROM Students S " + 
+                        "JOIN Enrollments e ON S.student_id = e.student_id " + 
+                        "JOIN Courses c ON e.course_id = c.course_id " + 
+                        "JOIN Grades g ON e.enrollment_id = g.enrollment_id " + 
+                        "WHERE S.student_id = ?;";
+        
+        try(Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                
+                boolean found = false;
+                while(rs.next()){
+                    String courseName = rs.getString("course_name");
+                    String grade = rs.getString("grade");
+
+                    System.out.println("Grades for " + id + ": " + courseName + " " + grade);
+                    found = true;
+                }
+
+                if(!found){
+                    System.out.println("No grades for Student " + id);
+                }
+
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+    }
+
+    public static List<Course> viewClassesByProf(int id){
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM Courses WHERE professor_id = ?";
+        try(Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                
+                while(rs.next()){
+                    Course c = new Course();
+                    c.setCourseID(rs.getInt("course_id"));
+                    c.setCourseName(rs.getString("course_name"));
+                    c.setCourseCode(rs.getString("course_code"));
+                    c.setProfessorID(rs.getInt("professor_id"));
+                    c.setCredits(rs.getInt("credits"));
+                    courses.add(c);
+
+                    System.out.println("Courses taught by Professor " + c.getProfessorID() + ": " + c.getCourseID() + " " + c.getCourseName()
+                        + " " + c.getCourseCode() + " " + c.getCredits());
+                }
+
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+            return courses;
+    }
+
+    public static void viewEnrolled(int id){
+        String sql = "SELECT s.student_id, c.course_id, e.enrollment_id, c.course_name, c.course_code, c.credits, e.semester, e.year, p.last_name " + 
+                        "FROM Students s " + 
+                        "JOIN Enrollments e ON s.student_id = e.student_id " + 
+                        "JOIN Courses c ON e.course_id = c.course_id " + 
+                        "JOIN Professors p ON c.professor_id = p.professor_id " + 
+                        "WHERE s.student_id = ?;";
+        try(Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                            
+                boolean found = false;
+                while(rs.next()){
+                    int student_id = rs.getInt("student_id");
+                    int course_id = rs.getInt("course_id");
+                    int enrollment_id = rs.getInt("enrollment_id");
+                    String course_name = rs.getString("course_name");
+                    String course_code = rs.getString("course_code");
+                    int course_credits = rs.getInt("credits");
+                    String semester = rs.getString("semester");
+                    int year = rs.getInt("year");
+                    String last_name = rs.getString("last_name");
+            
+                    System.out.println("Classes for " + id + ": " + student_id+ " " + course_id + " " + enrollment_id + 
+                        " " + course_name + " " + course_code + " " + course_credits + " " + semester + " " + year + " " + last_name);
+                    found = true;
+                }
+            
+                if(!found){
+                    System.out.println("No grades for Student " + id);
+                }
+            
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+                
+    }
 }
