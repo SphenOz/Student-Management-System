@@ -131,6 +131,55 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
+
+    public static void updateGrade(int professorId, int studentId, int courseId, String newGrade) {
+        String verifyProfessorSql = "SELECT COUNT(*) FROM Courses WHERE course_id = ? AND professor_id = ?";
+        String verifyEnrollmentSql = "SELECT enrollment_id FROM Enrollments WHERE student_id = ? AND course_id = ?";
+        String updateGradeSql = "UPDATE Grades SET grade = ? WHERE enrollment_id = ?";
+    
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+    
+            // Step 1: Check if the professor teaches the course
+            try (PreparedStatement ps1 = conn.prepareStatement(verifyProfessorSql)) {
+                ps1.setInt(1, courseId);
+                ps1.setInt(2, professorId);
+                ResultSet rs1 = ps1.executeQuery();
+                if (rs1.next() && rs1.getInt(1) == 0) {
+                    System.out.println("Permission denied: Professor does not teach this course.");
+                    return;
+                }
+            }
+    
+            // Step 2: Check if student is enrolled and get the enrollment_id
+            int enrollmentId = -1;
+            try (PreparedStatement ps2 = conn.prepareStatement(verifyEnrollmentSql)) {
+                ps2.setInt(1, studentId);
+                ps2.setInt(2, courseId);
+                ResultSet rs2 = ps2.executeQuery();
+                if (rs2.next()) {
+                    enrollmentId = rs2.getInt("enrollment_id");
+                } else {
+                    System.out.println("Student is not enrolled in this course.");
+                    return;
+                }
+            }
+    
+            // Step 3: Update grade
+            try (PreparedStatement ps3 = conn.prepareStatement(updateGradeSql)) {
+                ps3.setString(1, newGrade);
+                ps3.setInt(2, enrollmentId);
+                int rowsAffected = ps3.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Grade updated successfully.");
+                } else {
+                    System.out.println("Grade update failed (no record found).");
+                }
+            }
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     
     public static void deleteStudent(int id) {
         String deleteGrades = "DELETE FROM Grades WHERE enrollment_id IN (SELECT enrollment_id FROM Enrollments WHERE student_id = ?)";
@@ -247,7 +296,7 @@ public class DatabaseConnection {
         }
     }
     
-    public static void dropStudentFromCourse( int professorId, int studentId, int courseId) {
+    public static void dropStudentFromCourse(int professorId, int studentId, int courseId) {
         String verifySql = "SELECT COUNT(*) FROM Courses WHERE course_id = ? AND professor_id = ?";
         String deleteGrades = "DELETE FROM Grades WHERE enrollment_id IN (SELECT enrollment_id FROM Enrollments WHERE student_id = ? AND course_id = ?)";
         String deleteEnrollment = "DELETE FROM Enrollments WHERE student_id = ? AND course_id = ?";
