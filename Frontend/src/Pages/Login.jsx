@@ -1,3 +1,4 @@
+import axios from "axios"
 import  {useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -11,13 +12,28 @@ export default function Login() {
     const handleSubmit = (e) => {
         
         e.preventDefault()
-        if(!/^[0-9]+$/.test(ID)) {
-            setFailedID(true)
-            return
-        }
-        
-        navigate("/home")
+        login(e)
+        // navigate("/home")
         console.log("ID: ", ID)
+    }
+    const login = async (e) => {
+        try {
+            const response = await axios.post("http://localhost:8080/login", {
+                ID: ID,
+                Password: Password
+            })
+            console.log("Login successful")
+            navigate("/home")
+        }
+        catch (error) {
+            console.error("Error logging in:", error)
+            if (error.response.status === 401) {
+                setFailedID(true)
+            }
+            else if (error.response.status === 403) {
+                setFailedPassword(true)
+            }
+        }
     }
 
     const inputStyle = "background-gray-200 border-2 border-gray-300 rounded-lg p-2 h-[3rem] focus:outline-none focus:border-amber-200 "

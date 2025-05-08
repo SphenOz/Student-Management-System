@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 
+import { useGlobalState } from "../GlobalState";
+
 export default function Shoulderbar() {
     const location = useLocation();
     const [active, setActive] = useState(true)
     const [collapsed, setCollapsed] = useState(false)
+    const { setUser, isProfessor } = useGlobalState()
     useEffect(() => {
         if (location.pathname === "/") {
             setActive(false)
@@ -39,7 +42,7 @@ export default function Shoulderbar() {
                                 <div className="flex flex-col items-start w-[100%] justify-start mt-5 space-y-4">
                                     <button onClick={() => navigate('/home')} className={buttonStyle}>Home</button>
                                     <button onClick={() => navigate('/course')} className={buttonStyle}>Course Enrollment</button>
-                                    <button className={buttonStyle}>Settings</button>
+                                    {isProfessor && (<button className={buttonStyle}>Manage Course</button>)}
                                     <button className={buttonStyle}>Logout</button>
                                 </div>
                             )}

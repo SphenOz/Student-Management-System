@@ -1,6 +1,21 @@
+import { use } from "react";
 import CourseCard from "../Components/CourseCard";
+import axios from "axios";
 
 export default function CourseSelection() {
+
+    // const [courseDetails, setCourseDetails] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/course')
+            .then(response => {
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the course data!', error);
+            });
+        //setCourseDetails(response.data);
+        },[])
     return (
         <div className="flex flex-row items-center h-full w-full">
             {/*Course Listing*/}
