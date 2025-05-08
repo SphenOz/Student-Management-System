@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+
 import { useGlobalState } from "../GlobalState";
 
 export default function Shoulderbar() {
@@ -7,7 +8,6 @@ export default function Shoulderbar() {
     const [active, setActive] = useState(true)
     const [collapsed, setCollapsed] = useState(false)
     const { setUser, isProfessor } = useGlobalState()
-
     useEffect(() => {
         if (location.pathname === "/") {
             setActive(false)

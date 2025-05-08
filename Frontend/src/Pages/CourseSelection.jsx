@@ -16,7 +16,6 @@ export default function CourseSelection() {
             });
         //setCourseDetails(response.data);
         },[])
-
     return (
         <div className="flex flex-row items-center h-full w-full">
             {/*Course Listing*/}
