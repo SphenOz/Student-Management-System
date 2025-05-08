@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.srm.student_management_system.Course;
 import com.srm.student_management_system.Student;
+import com.srm.student_management_system.Professor;
 
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/student_db";
@@ -62,6 +63,13 @@ public class DatabaseConnection {
 
         //View classes enrolled in for student with id 2
         viewEnrolled(2);
+
+        findStudent(2);
+
+        findProf(102);
+
+        showCourses();
+
     }
 
     public static void initializeDatabase() {
@@ -142,6 +150,28 @@ public class DatabaseConnection {
         return students;
     }
 
+    public static Student findStudent(int id){
+        Student s = new Student();
+        String sql = "SELECT * FROM Students WHERE student_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery(); 
+            while (rs.next()) {
+                s.setId(rs.getInt("student_id"));
+                s.setFirstName(rs.getString("first_name")); 
+                s.setLastName(rs.getString("last_name"));
+                s.setEmail(rs.getString("email")); 
+                s.setDate(rs.getDate("date_of_birth")); 
+                s.setMajor(rs.getString("major"));
+                System.out.println("return student: " + s.getId());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+    
     public static void updateStudentEmail(int id, String newEmail) {
         String sql = "UPDATE Students SET email = ? WHERE student_id = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -154,6 +184,7 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
+    
     public static void updateGrade(int professorId, int studentId, int courseId, String newGrade) {
         String verifyProfessorSql = "SELECT COUNT(*) FROM Courses WHERE course_id = ? AND professor_id = ?";
         String verifyEnrollmentSql = "SELECT enrollment_id FROM Enrollments WHERE student_id = ? AND course_id = ?";
@@ -235,6 +266,30 @@ public class DatabaseConnection {
         }
     }
 
+    public static List<Course> showCourses(){
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM Courses";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Course c = new Course();
+                    c.setCourseID(rs.getInt("course_id"));
+                    c.setCourseName(rs.getString("course_name")); 
+                    c.setCourseCode(rs.getString("course_code"));
+                    c.setProfessorID(rs.getInt("professor_id")); 
+                    c.setCredits(rs.getInt("credits")); 
+                courses.add(c);
+                System.out.printf("ID: %d, Name: %s, Code: %s, ProfID: %d, Credits: %d%n",
+                    rs.getInt("course_id"), rs.getString("course_name"), rs.getString("course_code"),
+                    rs.getInt("professor_id"), rs.getInt("credits"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courses;
+    }
+    
     public static void createCourse(int courseId, String name, String code, String instructor, int credits) {
         String sql = "INSERT INTO Courses (course_id, course_name, course_code, instructor, credits) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -358,6 +413,7 @@ public class DatabaseConnection {
                 e.printStackTrace();
             }
         }
+    
     public static void viewGrades(int id){
         String sql = "SELECT course_name, grade " + 
                         "FROM Students S " + 
@@ -418,6 +474,26 @@ public class DatabaseConnection {
             return courses;
     }
 
+    public static Professor findProf(int id){
+        Professor p = new Professor();
+        String sql = "SELECT * FROM Professors WHERE professor_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery(); 
+            while (rs.next()) {
+                p.setId(rs.getInt("professor_id"));
+                p.setFirstName(rs.getString("first_name")); 
+                p.setLastName(rs.getString("last_name"));
+                p.setEmail(rs.getString("email")); 
+                System.out.println("return prof: " + p.getId());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+
     public static void viewEnrolled(int id){
         String sql = "SELECT s.student_id, c.course_id, e.enrollment_id, c.course_name, c.course_code, c.credits, e.semester, e.year, p.last_name " + 
                         "FROM Students s " + 
@@ -457,4 +533,5 @@ public class DatabaseConnection {
             }
                 
     }
+
 }

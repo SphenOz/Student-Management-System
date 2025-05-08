@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
+@RequestMapping("/api/students")
+public class StudentController {
 
-public class RoutingController {
-
-    @GetMapping("/students")
+    @GetMapping
     public List<Student> readStudents(){
         return DatabaseConnection.readStudents();
     }
 
-    @PostMapping("/students")
+    @PostMapping
     public void addStudent(@RequestBody Map<String, String> payload){
         DatabaseConnection.createStudent(
             payload.get("firstName"), 
@@ -34,7 +34,7 @@ public class RoutingController {
         );
     }
 
-    @PutMapping("students/{id}/email")
+    @PutMapping("/{id}/email")
     public void updateEmail(@PathVariable int id, @RequestBody Map<String, String> payload) {
         DatabaseConnection.updateStudentEmail(id, payload.get("email"));
     }
