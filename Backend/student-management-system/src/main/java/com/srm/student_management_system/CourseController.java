@@ -36,12 +36,14 @@ public class CourseController {
     }
 
     @DeleteMapping("/drop")
-    public void dropEnrollment(@RequestParam int studentId, @RequestParam int courseId){
+    public void dropEnrollment(@RequestParam("studentID") int studentId, @RequestParam("courseID") int courseId){
         DatabaseConnection.dropFromCourse(studentId, courseId);
     }
 
     @GetMapping("/student-courses")
-    public List<EnrollmentInfo> viewEnrolledCourses(@RequestParam int studentID) {
+    public List<EnrollmentInfo> viewEnrolledCourses(@RequestParam("studentID") int studentID) {
+        System.out.println("Student ID: " + studentID);
+        System.out.println(DatabaseConnection.viewEnrolled(studentID).size());
         return DatabaseConnection.viewEnrolled(studentID);
     }
     

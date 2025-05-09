@@ -70,6 +70,8 @@ public class DatabaseConnection {
         findProf(102);
 
         showCourses();
+        updateGrade(101, 2, 201, "A");
+        updateGrade(102, 2, 201, "B");
 
     }
 
@@ -281,9 +283,9 @@ public class DatabaseConnection {
                     c.setProfessorID(rs.getInt("professor_id")); 
                     c.setCredits(rs.getInt("credits")); 
                 courses.add(c);
-                System.out.printf("ID: %d, Name: %s, Code: %s, ProfID: %d, Credits: %d%n",
-                    rs.getInt("course_id"), rs.getString("course_name"), rs.getString("course_code"),
-                    rs.getInt("professor_id"), rs.getInt("credits"));
+                //System.out.printf("ID: %d, Name: %s, Code: %s, ProfID: %d, Credits: %d%n",
+                //    rs.getInt("course_id"), rs.getString("course_name"), rs.getString("course_code"),
+                //    rs.getInt("professor_id"), rs.getInt("credits"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -308,13 +310,15 @@ public class DatabaseConnection {
     }
 
     public static void enrollInCourse(int studentId, int courseId) {
-        String sql = "INSERT INTO Enrollments (enrollment_id, student_id, course_id) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Enrollments (enrollment_id, student_id, course_id, semester, year) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             int nextId = getNextEnrollmentId(conn, "Enrollments", "enrollment_id");
             pstmt.setInt(1, nextId);
             pstmt.setInt(2, studentId);
             pstmt.setInt(3, courseId);
+            pstmt.setString(4, "Fall"); // Example semester
+            pstmt.setInt(5, 2025); // Example year
             pstmt.executeUpdate();
             System.out.println("Student enrolled in course.");
         } catch (SQLException e) {
@@ -521,8 +525,8 @@ public class DatabaseConnection {
                     e.setProfLastName(rs.getString("last_name"));
                     EI.add(e);
                     
-                    System.out.println("Classes for " + id + ": " + e.getStudentId() + " " + e.getCourseId() + " " + e.getEnrollmentId() + 
-                        " " + e.getCourseName() + " " + e.getCourseCode() + " " + e.getCourseCredits() + " " + e.getSemester() + " " + e.getYear() + " " + e.getProfLastName());
+                    //System.out.println("Classes for " + id + ": " + e.getStudentId() + " " + e.getCourseId() + " " + e.getEnrollmentId() + 
+                    //    " " + e.getCourseName() + " " + e.getCourseCode() + " " + e.getCourseCredits() + " " + e.getSemester() + " " + e.getYear() + " " + e.getProfLastName());
                     found = true;
                 }
             
@@ -533,6 +537,7 @@ public class DatabaseConnection {
             } catch(SQLException e){
                 e.printStackTrace();
             }
+            System.out.println("Classes for " + id + ": " + EI.size() + " classes found.");
         return EI;
                 
     }

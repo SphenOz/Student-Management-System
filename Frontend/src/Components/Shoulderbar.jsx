@@ -43,7 +43,7 @@ export default function Shoulderbar() {
                                     <button onClick={() => navigate('/home')} className={buttonStyle}>Home</button>
                                     <button onClick={() => navigate('/course')} className={buttonStyle}>Course Enrollment</button>
                                     {isProfessor && (<button className={buttonStyle}>Manage Course</button>)}
-                                    <button className={buttonStyle}>Logout</button>
+                                    <button onClick={() => navigate('/')} className={buttonStyle}>Logout</button>
                                 </div>
                             )}
                         </div>
