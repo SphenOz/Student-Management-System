@@ -12,11 +12,27 @@ export const GlobalStateProvider = ({ children }) => {
 
   function loginUser({id, firstName, lastName, password, email, major}) {
     setUser({id, firstName, lastName, password, email, major });
+    if (user.id > 100) {
+      setIsProfessor(true);
+      setIsStudent(false);
+    }
+    else if (user.id < 100) {
+      setIsStudent(true);
+      setIsProfessor(false);
+    }
     console.log("Login successful")
   }
 
+  function logoutUser() {
+    setUser(null);
+    setPassword(null);
+    setID(null);
+    setIsProfessor(false);
+    setIsStudent(false);
+  }
+
   return (
-    <GlobalStateContext.Provider value={{ user, setUser, password, setPassword, ID, setID, isProfessor, setIsProfessor, isStudent, setIsStudent, loginUser }}>
+    <GlobalStateContext.Provider value={{ user, setUser, password, setPassword, ID, setID, isProfessor, setIsProfessor, isStudent, setIsStudent, loginUser, logoutUser }}>
       {children}
     </GlobalStateContext.Provider>
   );

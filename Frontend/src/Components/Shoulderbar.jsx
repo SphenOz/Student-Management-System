@@ -7,7 +7,7 @@ export default function Shoulderbar() {
     const location = useLocation();
     const [active, setActive] = useState(true)
     const [collapsed, setCollapsed] = useState(false)
-    const { user, isProfessor } = useGlobalState()
+    const { user, isProfessor, logoutUser } = useGlobalState()
     useEffect(() => {
         if (location.pathname === "/") {
             setActive(false)
@@ -17,6 +17,13 @@ export default function Shoulderbar() {
         }
     }
     , [location.pathname])
+
+    const handlelogout = () => {
+        setActive(false)
+        setCollapsed(false)
+        logoutUser()
+        navigate("/")
+    }
 
     const navigate = useNavigate()
     const buttonStyle = "bg-gray-200 hover:bg-gray-300 border-2 rounded-full hover: text-black h-[3rem] w-[80%] cursor-pointer"
@@ -43,7 +50,7 @@ export default function Shoulderbar() {
                                     <button onClick={() => navigate('/home')} className={buttonStyle}>Home</button>
                                     <button onClick={() => navigate('/course')} className={buttonStyle}>Course Enrollment</button>
                                     {isProfessor && (<button className={buttonStyle}>Manage Course</button>)}
-                                    <button onClick={() => navigate('/')} className={buttonStyle}>Logout</button>
+                                    <button onClick={() => handlelogout()} className={buttonStyle}>Logout</button>
                                 </div>
                             )}
                         </div>
