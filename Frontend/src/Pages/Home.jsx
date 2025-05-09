@@ -10,10 +10,6 @@ export default function Home() {
                     <h2 className="text-2xl font-bold">Term: </h2>
                 </div>
                 <div className="flex flex-col items-center w-full mt-5 space-y-4">
-                    <CourseCard />
-                    <CourseCard />
-                    <CourseCard />
-                    <CourseCard />
                 </div>
             </div>
         </div>

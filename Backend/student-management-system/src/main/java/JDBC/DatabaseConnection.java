@@ -114,6 +114,7 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
+    
     public static Student findStudent(int id){
         Student s = new Student();
         String sql = "SELECT * FROM Students WHERE student_id = ?";
