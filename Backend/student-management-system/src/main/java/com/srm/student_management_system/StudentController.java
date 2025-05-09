@@ -16,39 +16,39 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-@RequestMapping("/api/students")
-public class StudentController {
+@RequestMapping("/")
+    public class StudentController {
 
-    @GetMapping
-    public List<Student> readStudents(){
-        return DatabaseConnection.readStudents();
-    }
+        @GetMapping
+        public List<Student> readStudents(){
+            return DatabaseConnection.readStudents();
+        }
 
-    @GetMapping("/student")
-    public Student readStudentById(@RequestParam Integer id){
-        return DatabaseConnection.findStudent(id);
-    }
+        @GetMapping("/student")
+        public Student readStudentById(@RequestParam Integer id){
+            return DatabaseConnection.findStudent(id);
+        }
 
-    @PostMapping("/students")
-    public void addStudent(@RequestBody Map<String, String> payload){
-        DatabaseConnection.createStudent(
-            payload.get("firstName"), 
-            payload.get("lastName"), 
-            payload.get("email"), 
-            payload.get("dob"), 
-            payload.get("major")
-        );
-    }
+        @PostMapping("/students")
+        public void addStudent(@RequestBody Map<String, String> payload){
+            DatabaseConnection.createStudent(
+                payload.get("firstName"), 
+                payload.get("lastName"), 
+                payload.get("email"), 
+                payload.get("dob"), 
+                payload.get("major")
+            );
+        }
 
-    @PutMapping("/{id}/email")
-    public void updateEmail(@PathVariable int id, @RequestBody Map<String, String> payload) {
-        DatabaseConnection.updateStudentEmail(id, payload.get("email"));
-    }
+        @PutMapping("/{id}/email")
+        public void updateEmail(@PathVariable int id, @RequestBody Map<String, String> payload) {
+            DatabaseConnection.updateStudentEmail(id, payload.get("email"));
+        }
 
-    @DeleteMapping("/students/{id}")
-    public void deleteStudent(@PathVariable int id) {
-        DatabaseConnection.deleteStudent(id);
-    }
+        @DeleteMapping("/students/{id}")
+        public void deleteStudent(@PathVariable int id) {
+            DatabaseConnection.deleteStudent(id);
+        }
     
 
 }

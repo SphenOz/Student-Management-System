@@ -20,7 +20,7 @@ export default function Login() {
     }
     const login = async (e) => {
         try {
-            const response = await axios.get("http://localhost:8080/student", {
+            const response = await axios.get("http://localhost:8080/api/student", {
                 params: {id:ID}
             })
 
