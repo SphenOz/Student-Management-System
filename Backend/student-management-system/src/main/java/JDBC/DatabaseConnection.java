@@ -15,6 +15,7 @@ import java.util.List;
 import com.srm.student_management_system.Course;
 import com.srm.student_management_system.Student;
 import com.srm.student_management_system.Professor;
+import com.srm.student_management_system.EnrollmentInfo;
 
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/student_db";
@@ -493,7 +494,8 @@ public class DatabaseConnection {
         return p;
     }
 
-    public static void viewEnrolled(int id){
+    public static List<EnrollmentInfo> viewEnrolled(int id){
+        List<EnrollmentInfo> EI = new ArrayList<>();
         String sql = "SELECT s.student_id, c.course_id, e.enrollment_id, c.course_name, c.course_code, c.credits, e.semester, e.year, p.last_name " + 
                         "FROM Students s " + 
                         "JOIN Enrollments e ON s.student_id = e.student_id " + 
@@ -508,18 +510,20 @@ public class DatabaseConnection {
                             
                 boolean found = false;
                 while(rs.next()){
-                    int student_id = rs.getInt("student_id");
-                    int course_id = rs.getInt("course_id");
-                    int enrollment_id = rs.getInt("enrollment_id");
-                    String course_name = rs.getString("course_name");
-                    String course_code = rs.getString("course_code");
-                    int course_credits = rs.getInt("credits");
-                    String semester = rs.getString("semester");
-                    int year = rs.getInt("year");
-                    String last_name = rs.getString("last_name");
-            
-                    System.out.println("Classes for " + id + ": " + student_id+ " " + course_id + " " + enrollment_id + 
-                        " " + course_name + " " + course_code + " " + course_credits + " " + semester + " " + year + " " + last_name);
+                    EnrollmentInfo e = new EnrollmentInfo();
+                    e.setStudentId(rs.getInt("student_id"));
+                    e.setCourseId(rs.getInt("course_id"));
+                    e.setEnrollmentId(rs.getInt("enrollment_id"));
+                    e.setCourseName(rs.getString("course_name"));
+                    e.setCourseCode(rs.getString("course_code"));
+                    e.setCourseCredits(rs.getInt("credits"));
+                    e.setSemester(rs.getString("semester"));
+                    e.setYear(rs.getInt("year"));
+                    e.setProfLastName(rs.getString("last_name"));
+                    EI.add(e);
+                    
+                    System.out.println("Classes for " + id + ": " + e.getStudentId() + " " + e.getCourseId() + " " + e.getEnrollmentId() + 
+                        " " + e.getCourseName() + " " + e.getCourseCode() + " " + e.getCourseCredits() + " " + e.getSemester() + " " + e.getYear() + " " + e.getProfLastName());
                     found = true;
                 }
             
@@ -530,6 +534,7 @@ public class DatabaseConnection {
             } catch(SQLException e){
                 e.printStackTrace();
             }
+        return EI;
                 
     }
 
