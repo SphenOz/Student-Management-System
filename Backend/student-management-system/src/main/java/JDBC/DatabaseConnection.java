@@ -36,7 +36,7 @@ public class DatabaseConnection {
         updateStudentEmail(1, "peter.houston.updated@sjsu.edu");
 
         // 4. Enroll student_id 2 into course_id 201 (assumes course 201 exists)
-        enrollInCourse(2, 201, "Fall", 2025);
+        enrollInCourse(2, 201);
 
         // 5. Drop student_id 2 from course_id 201
         dropFromCourse(2, 201);  // Should succeed
@@ -307,16 +307,14 @@ public class DatabaseConnection {
         }
     }
 
-    public static void enrollInCourse(int studentId, int courseId, String semester, int year) {
-        String sql = "INSERT INTO Enrollments (enrollment_id, student_id, course_id, semester, year) VALUES (?, ?, ?, ?, ?)";
+    public static void enrollInCourse(int studentId, int courseId) {
+        String sql = "INSERT INTO Enrollments (enrollment_id, student_id, course_id) VALUES (?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             int nextId = getNextEnrollmentId(conn, "Enrollments", "enrollment_id");
             pstmt.setInt(1, nextId);
             pstmt.setInt(2, studentId);
             pstmt.setInt(3, courseId);
-            pstmt.setString(4, semester);
-            pstmt.setInt(5, year);
             pstmt.executeUpdate();
             System.out.println("Student enrolled in course.");
         } catch (SQLException e) {

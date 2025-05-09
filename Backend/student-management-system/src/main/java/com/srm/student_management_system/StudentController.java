@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
             return DatabaseConnection.readStudents();
         }
 
-        @GetMapping("/student")
+        @GetMapping("/students")
         public Student readStudentById(@RequestParam Integer id){
             return DatabaseConnection.findStudent(id);
         }
