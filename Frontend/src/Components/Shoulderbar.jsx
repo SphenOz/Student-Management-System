@@ -32,7 +32,7 @@ export default function Shoulderbar() {
                     )
                     :
                     (
-                        <div className="flex flex-col items-start relative h-screen w-[20%] bg-slate-700 shadow-black shadow-lg p-4">
+                        <div className="flex flex-col items-start relative h-screen w-[20%] bg-slate-700 shadow-black shadow-lg space-y-8 p-4">
                             <div className="flex flex-col items-start h-[30%] w-full space-y-4">
                                 <h2 className="text-xl font-bold">{`${user?.firstName} ${user?.lastName}`}</h2>
                                 <span className="self-end text-gray-500 cursor-pointer" onClick={() => setCollapsed(!collapsed)}> Collapse </span>
