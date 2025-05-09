@@ -10,8 +10,13 @@ export const GlobalStateProvider = ({ children }) => {
   const [isProfessor, setIsProfessor] = useState(false); // example global state
   const [isStudent, setIsStudent] = useState(false); // example global state
 
+  function loginUser({id, firstName, lastName, password, email, major}) {
+    setUser({id, firstName, lastName, password, email, major });
+    console.log("Login successful")
+  }
+
   return (
-    <GlobalStateContext.Provider value={{ user, setUser, password, setPassword, ID, setID, isProfessor, setIsProfessor, isStudent, setIsStudent }}>
+    <GlobalStateContext.Provider value={{ user, setUser, password, setPassword, ID, setID, isProfessor, setIsProfessor, isStudent, setIsStudent, loginUser }}>
       {children}
     </GlobalStateContext.Provider>
   );

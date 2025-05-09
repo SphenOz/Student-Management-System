@@ -1,6 +1,7 @@
 package com.srm.student_management_system;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,12 @@ public class StudentController {
         return DatabaseConnection.readStudents();
     }
 
-    @PostMapping
+    @GetMapping("/student")
+    public Student readStudentById(@RequestParam Integer id){
+        return DatabaseConnection.findStudent(id);
+    }
+
+    @PostMapping("/students")
     public void addStudent(@RequestBody Map<String, String> payload){
         DatabaseConnection.createStudent(
             payload.get("firstName"), 

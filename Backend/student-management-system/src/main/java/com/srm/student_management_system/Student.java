@@ -3,7 +3,7 @@ package com.srm.student_management_system;
 import java.sql.Date;
 
 public class Student {
-    private int id;
+    private Integer id;
     private String firstName;
     private String lastName;
     private String email;

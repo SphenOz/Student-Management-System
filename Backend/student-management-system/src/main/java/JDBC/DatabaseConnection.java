@@ -113,6 +113,27 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
+    public static Student findStudent(int id){
+        Student s = new Student();
+        String sql = "SELECT * FROM Students WHERE student_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery(); 
+            while (rs.next()) {
+                s.setId(rs.getInt("student_id"));
+                s.setFirstName(rs.getString("first_name")); 
+                s.setLastName(rs.getString("last_name"));
+                s.setEmail(rs.getString("email")); 
+                s.setDate(rs.getDate("date_of_birth")); 
+                s.setMajor(rs.getString("major"));
+                System.out.println("return student: " + s.getId());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
 
     private static int getNextStudentId(Connection conn) throws SQLException {
         String sql = "SELECT MAX(student_id) FROM Students";

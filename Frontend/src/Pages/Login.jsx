@@ -1,6 +1,7 @@
 import axios from "axios"
 import  {useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { useGlobalState } from "../GlobalState"
 
 export default function Login() {
     const [ID, setID] = useState("")
@@ -8,6 +9,7 @@ export default function Login() {
     const [failedID, setFailedID] = useState(false)
     const navigate = useNavigate()
     const [failedPassword, setFailedPassword] = useState(false)
+    const {loginUser} = useGlobalState()
 
     const handleSubmit = (e) => {
         
@@ -18,11 +20,11 @@ export default function Login() {
     }
     const login = async (e) => {
         try {
-            const response = await axios.post("http://localhost:8080/login", {
-                ID: ID,
-                Password: Password
+            const response = await axios.get("http://localhost:8080/student", {
+                params: {id:ID}
             })
-            console.log("Login successful")
+
+            loginUser(response.data)
             navigate("/home")
         }
         catch (error) {
