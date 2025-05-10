@@ -10,8 +10,29 @@ export const GlobalStateProvider = ({ children }) => {
   const [isProfessor, setIsProfessor] = useState(false); // example global state
   const [isStudent, setIsStudent] = useState(false); // example global state
 
+  function loginUser({id, firstName, lastName, password, email, major}) {
+    setUser({id, firstName, lastName, password, email, major });
+    if (id > 100) {
+      setIsProfessor(true);
+      setIsStudent(false);
+    }
+    else if (id < 100) {
+      setIsStudent(true);
+      setIsProfessor(false);
+    }
+    console.log("Login successful")
+  }
+
+  function logoutUser() {
+    setUser(null);
+    setPassword(null);
+    setID(null);
+    setIsProfessor(false);
+    setIsStudent(false);
+  }
+
   return (
-    <GlobalStateContext.Provider value={{ user, setUser, password, setPassword, ID, setID, isProfessor, setIsProfessor, isStudent, setIsStudent }}>
+    <GlobalStateContext.Provider value={{ user, setUser, password, setPassword, ID, setID, isProfessor, setIsProfessor, isStudent, setIsStudent, loginUser, logoutUser }}>
       {children}
     </GlobalStateContext.Provider>
   );

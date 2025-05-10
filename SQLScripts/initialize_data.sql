@@ -37,7 +37,7 @@ INSERT INTO Professors (professor_id, first_name, last_name, email) VALUES
 (115, 'Tony', 'Parker', 'tony.parker@sjsu.edu');
 
 -- Courses
--- (course_id, course_name, course_code, instructor, credits)
+-- (course_id, course_name, course_code, professor_id, credits)
 INSERT INTO Courses VALUES
 (201, 'Aerodynamics I', 'AE 160', 101, 3),
 (202, 'Calculus I', 'MATH 30', 103, 3),

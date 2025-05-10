@@ -9,6 +9,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.srm.student_management_system.Course;
+import com.srm.student_management_system.Student;
+import com.srm.student_management_system.Professor;
+import com.srm.student_management_system.EnrollmentInfo;
 
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/student_db";
@@ -29,7 +36,7 @@ public class DatabaseConnection {
         updateStudentEmail(1, "peter.houston.updated@sjsu.edu");
 
         // 4. Enroll student_id 2 into course_id 201 (assumes course 201 exists)
-        enrollInCourse(2, 201, "Fall", 2025);
+        enrollInCourse(2, 201);
 
         // 5. Drop student_id 2 from course_id 201
         dropFromCourse(2, 201);  // Should succeed
@@ -44,11 +51,28 @@ public class DatabaseConnection {
         dropStudentFromCourse(102, 2, 201);  // Should say permission denied
 
         // 9. Delete student 4 (ensure cascading delete of enrollments/grades)
-        deleteStudent(4);
+        //deleteStudent(4);
 
         // 10. Final state
         System.out.println("\n--- Final Students ---");
         readStudents();
+        // View all grades for student with id 2
+        viewGrades(2);
+
+        //View classes taught by professor with id 102
+        viewClassesByProf(102);
+
+        //View classes enrolled in for student with id 2
+        viewEnrolled(2);
+
+        findStudent(2);
+
+        findProf(102);
+
+        showCourses();
+        updateGrade(101, 2, 201, "A");
+        updateGrade(102, 2, 201, "B");
+
     }
 
     public static void initializeDatabase() {
@@ -92,6 +116,28 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
+    
+    public static Student findStudent(int id){
+        Student s = new Student();
+        String sql = "SELECT * FROM Students WHERE student_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery(); 
+            while (rs.next()) {
+                s.setId(rs.getInt("student_id"));
+                s.setFirstName(rs.getString("first_name")); 
+                s.setLastName(rs.getString("last_name"));
+                s.setEmail(rs.getString("email")); 
+                s.setDate(rs.getDate("date_of_birth")); 
+                s.setMajor(rs.getString("major"));
+                //System.out.println("return student: " + s.getId());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
 
     private static int getNextStudentId(Connection conn) throws SQLException {
         String sql = "SELECT MAX(student_id) FROM Students";
@@ -103,13 +149,32 @@ public class DatabaseConnection {
         }
         return 1;
     }
+    private static int getNextCourseID(Connection conn) throws SQLException {
+        String sql = "SELECT MAX(course_id) FROM Courses";
+        try (Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            }
+        }
+        return 1;
+    }
 
-    public static void readStudents() {
+    public static List<Student> readStudents() {
+        List<Student> students = new ArrayList<>();
         String sql = "SELECT * FROM Students";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
+                Student s = new Student();
+                    s.setId(rs.getInt("student_id"));
+                    s.setFirstName(rs.getString("first_name")); 
+                    s.setLastName(rs.getString("last_name"));
+                    s.setEmail(rs.getString("email")); 
+                    s.setDate(rs.getDate("date_of_birth")); 
+                    s.setMajor(rs.getString("major"));
+                students.add(s);
                 System.out.printf("ID: %d, Name: %s %s, Email: %s, DOB: %s, Major: %s%n",
                     rs.getInt("student_id"), rs.getString("first_name"), rs.getString("last_name"),
                     rs.getString("email"), rs.getDate("date_of_birth"), rs.getString("major"));
@@ -117,8 +182,9 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return students;
     }
-
+    
     public static void updateStudentEmail(int id, String newEmail) {
         String sql = "UPDATE Students SET email = ? WHERE student_id = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -131,7 +197,7 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
     }
-
+    
     public static void updateGrade(int professorId, int studentId, int courseId, String newGrade) {
         String verifyProfessorSql = "SELECT COUNT(*) FROM Courses WHERE course_id = ? AND professor_id = ?";
         String verifyEnrollmentSql = "SELECT enrollment_id FROM Enrollments WHERE student_id = ? AND course_id = ?";
@@ -213,14 +279,59 @@ public class DatabaseConnection {
         }
     }
 
-    public static void createCourse(int courseId, String name, String code, String instructor, int credits) {
-        String sql = "INSERT INTO Courses (course_id, course_name, course_code, instructor, credits) VALUES (?, ?, ?, ?, ?)";
+    public static List<Course> showCourses(){
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM Courses";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Course c = new Course();
+                    c.setCourseID(rs.getInt("course_id"));
+                    c.setCourseName(rs.getString("course_name")); 
+                    c.setCourseCode(rs.getString("course_code"));
+                    c.setProfessorID(rs.getInt("professor_id")); 
+                    c.setCredits(rs.getInt("credits")); 
+                courses.add(c);
+                //System.out.printf("ID: %d, Name: %s, Code: %s, ProfID: %d, Credits: %d%n",
+                //    rs.getInt("course_id"), rs.getString("course_name"), rs.getString("course_code"),
+                //    rs.getInt("professor_id"), rs.getInt("credits"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    public static Course findCourse(int id){
+        Course c = new Course();
+        String sql = "SELECT * FROM Courses WHERE course_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery(); 
+            while (rs.next()) {
+                c.setCourseID(rs.getInt("course_id"));
+                c.setCourseName(rs.getString("course_name")); 
+                c.setCourseCode(rs.getString("course_code"));
+                c.setProfessorID(rs.getInt("professor_id")); 
+                c.setCredits(rs.getInt("credits")); 
+                //System.out.println("return course: " + c.getCourseID());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return c;
+    }
+    
+    public static void createCourse(String name, String code, int professorID, int credits) {
+        String sql = "INSERT INTO Courses (course_id, course_name, course_code, professor_id, credits) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, courseId);
+            pstmt.setInt(1, getNextCourseID(conn));
             pstmt.setString(2, name);
             pstmt.setString(3, code);
-            pstmt.setString(4, instructor);
+            pstmt.setInt(4, professorID);
             pstmt.setInt(5, credits);
             pstmt.executeUpdate();
             System.out.println("Course created successfully.");
@@ -229,22 +340,44 @@ public class DatabaseConnection {
         }
     }
 
-    public static void enrollInCourse(int studentId, int courseId, String semester, int year) {
-        String sql = "INSERT INTO Enrollments (enrollment_id, student_id, course_id, semester, year) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            int nextId = getNextEnrollmentId(conn, "Enrollments", "enrollment_id");
-            pstmt.setInt(1, nextId);
-            pstmt.setInt(2, studentId);
-            pstmt.setInt(3, courseId);
-            pstmt.setString(4, semester);
-            pstmt.setInt(5, year);
-            pstmt.executeUpdate();
-            System.out.println("Student enrolled in course.");
+     public static void enrollInCourse(int studentId, int courseId) {
+    String enrollmentSQL = "INSERT INTO Enrollments (enrollment_id, student_id, course_id, semester, year) VALUES (?, ?, ?, ?, ?)";
+    String gradeSQL = "INSERT INTO Grades (grade_id, enrollment_id, grade) VALUES (?, ?, ?)";
+
+    try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        conn.setAutoCommit(false);  // Start transaction
+
+        int enrollmentId = getNextEnrollmentId(conn, "Enrollments", "enrollment_id");
+        int gradeId = getNextEnrollmentId(conn, "Grades", "grade_id");  // Reuse same ID generator logic
+
+        try (PreparedStatement pstmtEnroll = conn.prepareStatement(enrollmentSQL);
+             PreparedStatement pstmtGrade = conn.prepareStatement(gradeSQL)) {
+
+            // Insert enrollment
+            pstmtEnroll.setInt(1, enrollmentId);
+            pstmtEnroll.setInt(2, studentId);
+            pstmtEnroll.setInt(3, courseId);
+            pstmtEnroll.setString(4, "Fall");
+            pstmtEnroll.setInt(5, 2025);
+            pstmtEnroll.executeUpdate();
+
+            // Insert default grade
+            pstmtGrade.setInt(1, gradeId);
+            pstmtGrade.setInt(2, enrollmentId);
+            pstmtGrade.setString(3, "I");
+            pstmtGrade.executeUpdate();
+
+            conn.commit();
+            System.out.println("Student enrolled in course and grade initialized to 'I'.");
         } catch (SQLException e) {
+            conn.rollback();
             e.printStackTrace();
         }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+}
 
     private static int getNextEnrollmentId(Connection conn, String table, String column) throws SQLException {
         String sql = "SELECT MAX(" + column + ") FROM " + table;
@@ -336,4 +469,183 @@ public class DatabaseConnection {
                 e.printStackTrace();
             }
         }
+    
+    public static void viewGrades(int id){
+        String sql = "SELECT course_name, grade " + 
+                        "FROM Students S " + 
+                        "JOIN Enrollments e ON S.student_id = e.student_id " + 
+                        "JOIN Courses c ON e.course_id = c.course_id " + 
+                        "JOIN Grades g ON e.enrollment_id = g.enrollment_id " + 
+                        "WHERE S.student_id = ?;";
+        
+        try(Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                
+                boolean found = false;
+                while(rs.next()){
+                    String courseName = rs.getString("course_name");
+                    String grade = rs.getString("grade");
+
+                    System.out.println("Grades for " + id + ": " + courseName + " " + grade);
+                    found = true;
+                }
+
+                if(!found){
+                    System.out.println("No grades for Student " + id);
+                }
+
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+    }
+
+    public static List<Course> viewClassesByProf(int id){
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM Courses WHERE professor_id = ?";
+        try(Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                
+                while(rs.next()){
+                    Course c = new Course();
+                    c.setCourseID(rs.getInt("course_id"));
+                    c.setCourseName(rs.getString("course_name"));
+                    c.setCourseCode(rs.getString("course_code"));
+                    c.setProfessorID(rs.getInt("professor_id"));
+                    c.setCredits(rs.getInt("credits"));
+                    courses.add(c);
+
+                    System.out.println("Courses taught by Professor " + c.getProfessorID() + ": " + c.getCourseID() + " " + c.getCourseName()
+                        + " " + c.getCourseCode() + " " + c.getCredits());
+                }
+
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+            return courses;
+    }
+
+    public static Professor findProf(int id){
+        Professor p = new Professor();
+        String sql = "SELECT * FROM Professors WHERE professor_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery(); 
+            while (rs.next()) {
+                p.setId(rs.getInt("professor_id"));
+                p.setFirstName(rs.getString("first_name")); 
+                p.setLastName(rs.getString("last_name"));
+                p.setEmail(rs.getString("email")); 
+                System.out.println("return prof: " + p.getId());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+
+    public static List<EnrollmentInfo> viewEnrolled(int id){
+        List<EnrollmentInfo> EI = new ArrayList<>();
+        String sql = "SELECT s.student_id, c.course_id, e.enrollment_id, c.course_name, c.course_code, c.credits, e.semester, e.year, p.last_name " + 
+                        "FROM Students s " + 
+                        "JOIN Enrollments e ON s.student_id = e.student_id " + 
+                        "JOIN Courses c ON e.course_id = c.course_id " + 
+                        "JOIN Professors p ON c.professor_id = p.professor_id " + 
+                        "WHERE s.student_id = ?;";
+        try(Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                            
+                boolean found = false;
+                while(rs.next()){
+                    EnrollmentInfo e = new EnrollmentInfo();
+                    e.setStudentId(rs.getInt("student_id"));
+                    e.setCourseId(rs.getInt("course_id"));
+                    e.setEnrollmentId(rs.getInt("enrollment_id"));
+                    e.setCourseName(rs.getString("course_name"));
+                    e.setCourseCode(rs.getString("course_code"));
+                    e.setCourseCredits(rs.getInt("credits"));
+                    e.setSemester(rs.getString("semester"));
+                    e.setYear(rs.getInt("year"));
+                    e.setProfLastName(rs.getString("last_name"));
+                    EI.add(e);
+                    
+                    //System.out.println("Classes for " + id + ": " + e.getStudentId() + " " + e.getCourseId() + " " + e.getEnrollmentId() + 
+                    //    " " + e.getCourseName() + " " + e.getCourseCode() + " " + e.getCourseCredits() + " " + e.getSemester() + " " + e.getYear() + " " + e.getProfLastName());
+                    found = true;
+                }
+            
+                if(!found){
+                    System.out.println("No grades for Student " + id);
+                }
+            
+            } catch(SQLException e){
+                e.printStackTrace();
+            }
+            //System.out.println("Classes for " + id + ": " + EI.size() + " classes found.");
+        return EI;
+                
+    }
+     
+    public static List<Student> viewStudentsByCourse(int courseId) {
+        List<Student> students = new ArrayList<>();
+        String sql = "SELECT s.student_id, s.first_name, s.last_name, s.email, s.date_of_birth, s.major " +
+                    "FROM Students s " +
+                    "JOIN Enrollments e ON s.student_id = e.student_id " +
+                    "WHERE e.course_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, courseId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Student s = new Student();
+                s.setId(rs.getInt("student_id"));
+                s.setFirstName(rs.getString("first_name"));
+                s.setLastName(rs.getString("last_name"));
+                s.setEmail(rs.getString("email"));
+                s.setDate(rs.getDate("date_of_birth"));
+                s.setMajor(rs.getString("major"));
+                students.add(s);
+
+                System.out.printf("Student ID: %d, Name: %s %s, Email: %s, DOB: %s, Major: %s%n",
+                    s.getId(), s.getFirstName(), s.getLastName(), s.getEmail(), s.getDate(), s.getMajor());
+            }
+
+            if (students.isEmpty()) {
+                System.out.println("No students enrolled in course ID: " + courseId);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return students;
+    }
+
+    public static String getGrade(int enrollmentId) {
+        String sql = "SELECT grade FROM Grades WHERE enrollment_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, enrollmentId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("grade");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+
 }
