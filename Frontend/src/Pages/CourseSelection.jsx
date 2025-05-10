@@ -41,6 +41,7 @@ export default function CourseSelection() {
         } catch (error) {
             console.error('Error enrolling in course:', error);
         }
+        navigate("/home")
 
     }
 
@@ -73,7 +74,7 @@ export default function CourseSelection() {
             <div className="flex flex-col items-start h-full w-[100%] shadow-black shadow-lg p-4">
                 <h1 className="text-2xl font-bold">Course Selection</h1>
                 <div className="flex flex-col items-start mt-5 bg-slate-600 p-4 rounded-lg">
-                    <h2 className="text-2xl font-bold">Term: </h2>
+                    <h2 className="text-2xl font-bold">Term: Spring 2025</h2>
                 </div>
                 <div className="flex flex-col items-start w-[90%] mt-5 space-y-4 bg-slate-500 p-4 rounded-lg overflow-y-auto max-h-[80vh]">
                 {courseDetails ? courseDetails.map((course) => (

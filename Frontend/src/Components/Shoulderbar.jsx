@@ -48,7 +48,7 @@ export default function Shoulderbar() {
                             {!collapsed && (
                                 <div className="flex flex-col items-start w-[100%] justify-start mt-5 space-y-4">
                                     <button onClick={() => navigate('/home')} className={buttonStyle}>Home</button>
-                                    <button onClick={() => navigate('/course')} className={buttonStyle}>Course Enrollment</button>
+                                    <button onClick={() => navigate('/course')} className={buttonStyle}>{isProfessor ? "Course Creation" : "Course Enrollment"}</button>
                                     {isProfessor && (<button className={buttonStyle}>Manage Course</button>)}
                                     <button onClick={() => handlelogout()} className={buttonStyle}>Logout</button>
                                 </div>

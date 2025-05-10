@@ -1,5 +1,5 @@
 import axios from "axios"
-import  {useState } from "react"
+import  {use, useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useGlobalState } from "../GlobalState"
 
@@ -11,14 +11,16 @@ export default function Login() {
     const [failedPassword, setFailedPassword] = useState(false)
     const {loginUser} = useGlobalState()
     const [plogin, setPLogin] = useState(false)
+    const [executeLogin, setExecuteLogin] = useState()
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         
         e.preventDefault()
-        login(e)
+        await login(e)
         // navigate("/home")
-        console.log("ID: ", ID)
     }
+
+
     const login = async (e) => {
         if(!plogin){
             try {
@@ -26,8 +28,7 @@ export default function Login() {
                     params: {id:ID}
                 })
 
-                loginUser(response.data)
-                navigate("/home")
+                setExecuteLogin(response.data)
             }
             catch (error) {
                 console.error("Error logging in:", error)
@@ -44,8 +45,7 @@ export default function Login() {
                 const response = await axios.get("http://localhost:8080/professors", {
                     params: {id:ID}
                 })
-                loginUser(response.data)
-                navigate("/home")
+                setExecuteLogin(response.data)
             }
             catch (error) {
                 console.error("Error logging in:", error)
@@ -57,8 +57,19 @@ export default function Login() {
                 }
             }
         }
-
     }
+    useEffect(() => {
+        if (executeLogin) {
+            if (plogin) {
+                loginUser(executeLogin)
+                navigate("/home")
+            }
+            else {
+                loginUser(executeLogin)
+                navigate("/home")
+            }
+        }
+    }, [executeLogin])
 
     const inputStyle = "background-gray-200 border-2 border-gray-300 rounded-lg p-2 h-[3rem] focus:outline-none focus:border-amber-200 "
     return(
@@ -68,7 +79,7 @@ export default function Login() {
                     <h1 className="m-5">Login {plogin ? " Professor" : " Student" }</h1>
                         <form  className= "flex flex-col w-full mt-5 space-y-7" onSubmit={handleSubmit}>
                             <input className={inputStyle}
-                                type="text" placeholder="ID" onFocus={(e) => setFailedID(false)} onChange={(e) => setID(e.target.value)} />
+                                type="text" placeholder="ID"value={ID} onFocus={(e) => setFailedID(false)} onChange={(e) => setID(e.target.value)} />
                             {failedID && <span className="text-red-500">Invalid ID</span>}
                             <input className={inputStyle}
                                 type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>

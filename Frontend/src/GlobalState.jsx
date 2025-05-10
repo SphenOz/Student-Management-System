@@ -12,11 +12,11 @@ export const GlobalStateProvider = ({ children }) => {
 
   function loginUser({id, firstName, lastName, password, email, major}) {
     setUser({id, firstName, lastName, password, email, major });
-    if (user.id > 100) {
+    if (id > 100) {
       setIsProfessor(true);
       setIsStudent(false);
     }
-    else if (user.id < 100) {
+    else if (id < 100) {
       setIsStudent(true);
       setIsProfessor(false);
     }
