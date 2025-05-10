@@ -1,8 +1,5 @@
 package com.srm.student_management_system.controller;
 
-import com.srm.student_management_system.EnrollmentInfo;
-import com.srm.student_management_system.Student;
-
 public class Grade {
     private EnrollmentInfo enrollmentInfo;
     private Student student;

@@ -1,4 +1,4 @@
-package com.srm.student_management_system;
+package com.srm.student_management_system.controller;
 
 public class Course {
     private int course_id;
