@@ -12,10 +12,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.srm.student_management_system.Course;
-import com.srm.student_management_system.Student;
-import com.srm.student_management_system.Professor;
-import com.srm.student_management_system.EnrollmentInfo;
+import com.srm.student_management_system.controller.Course;
+import com.srm.student_management_system.controller.EnrollmentInfo;
+import com.srm.student_management_system.controller.Professor;
+import com.srm.student_management_system.controller.Student;
 
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/student_db";

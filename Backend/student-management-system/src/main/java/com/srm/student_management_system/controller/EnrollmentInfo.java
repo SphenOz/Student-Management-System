@@ -1,4 +1,4 @@
-package com.srm.student_management_system;
+package com.srm.student_management_system.controller;
 
 public class EnrollmentInfo {
     private int studentId;

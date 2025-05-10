@@ -1,10 +1,14 @@
-package com.srm.student_management_system;
+package com.srm.student_management_system.controller;
 
-public class Professor {
-    private int id;
+import java.sql.Date;
+
+public class Student {
+    private Integer id;
     private String firstName;
     private String lastName;
     private String email;
+    private Date date;
+    private String major;
 
     public int getId() {
         return id;
@@ -37,4 +41,21 @@ public class Professor {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
 }
